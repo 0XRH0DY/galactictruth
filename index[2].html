@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galactic Truth Terminal</title>
+  <script src="https://unpkg.com/ipfs-http-client/dist/index.min.js"></script>
+  <style>
+    body {
+      background: black;
+      color: #00ffcc;
+      font-family: monospace;
+      padding: 20px;
+    }
+    h1, h2 {
+      color: #00ffcc;
+      text-shadow: 0 0 5px #00ffff;
+    }
+    .terminal-box {
+      background: #001a1a;
+      border: 1px solid #00ffcc;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px #00ffcc;
+    }
+    .planet-button, .room-button, .topic-button, .utility-button {
+      background: #003333;
+      border: 1px solid #00ffcc;
+      padding: 10px;
+      margin: 5px;
+      cursor: pointer;
+      color: #00ffff;
+    }
+    .planet-button:hover, .room-button:hover, .topic-button:hover, .utility-button:hover {
+      background: #005555;
+    }
+    #output, #history {
+      white-space: pre-wrap;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    #history {
+      max-height: 300px;
+      overflow-y: auto;
+      border-top: 1px dashed #00ffff;
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌌 Galactic Truth Terminal</h1>
+  <p>Interact with cosmic AI intelligence. Explore planets, galaxies, the moon landing, Mars colonization, black holes, and astrological forces. Discover ideas for meme coins or learn the truth behind the cosmos.</p>
+
+  <div class="terminal-box">
+    <h2>🚀 Cosmic Questions & Topics</h2>
+    <button class="topic-button" onclick="generateAI('Tell me about the moon landing and conspiracy theories around it')">🌕 Moon Landing</button>
+    <button class="topic-button" onclick="generateAI('What is the future of living on Mars?')">🔴 Mars Colonization</button>
+    <button class="topic-button" onclick="generateAI('Explain the signs of the zodiac and their meanings in astrology')">♈ Astrology</button>
+    <button class="topic-button" onclick="generateAI('What happened inside the black hole at the center of the Milky Way?')">🕳️ Milky Way Black Hole</button>
+    <button class="utility-button" onclick="randomPrompt()">🎲 Random Exploration</button>
+  </div>
+
+  <div class="terminal-box">
+    <h2>🛰️ Backroom Explorer Map</h2>
+    <button class="room-button" onclick="generateAI('Enter the Gamma Corridor - what secrets lie within?')">🛸 Gamma Corridor</button>
+    <button class="room-button" onclick="generateAI('Step into the Event Horizon Chamber - what cosmic knowledge is stored?')">🌀 Event Horizon</button>
+    <button class="room-button" onclick="generateAI('Access the Quantum Data Archives - what forgotten lore exists here?')">📡 Quantum Archives</button>
+    <button class="room-button" onclick="generateAI('Investigate the Stellar Nursery Vault - what coin could be born here?')">🌟 Stellar Nursery</button>
+  </div>
+
+  <div class="terminal-box">
+    <h2>🌠 Lore Log</h2>
+    <div id="output"></div>
+    <div id="history"></div>
+    <button class="utility-button" onclick="shareToTwitter()">📤 Share to X</button>
+    <button class="utility-button" onclick="saveToIPFS()">💾 Save Lore to IPFS</button>
+  </div>
+
+  <script>
+    const output = document.getElementById("output");
+    const history = document.getElementById("history");
+
+    async function generateAI(prompt) {
+      output.innerText = "Contacting galactic intelligence...";
+      try {
+        const res = await fetch("https://api.openai.com/v1/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer YOUR_OPENAI_KEY"
+          },
+          body: JSON.stringify({
+            model: "text-davinci-003",
+            prompt: prompt,
+            max_tokens: 150
+          })
+        });
+        const data = await res.json();
+        const text = data.choices[0].text.trim();
+        output.innerText = text;
+        const entry = document.createElement("div");
+        entry.innerText = `> ${prompt}
+${text}
+`;
+        history.prepend(entry);
+      } catch (err) {
+        output.innerText = "🌌 The stars are silent. (API Error)";
+      }
+    }
+
+    function shareToTwitter() {
+      const text = output.innerText.trim();
+      if (text) {
+        const tweet = encodeURIComponent(text.slice(0, 250));
+        window.open(`https://twitter.com/intent/tweet?text=${tweet}`, "_blank");
+      }
+    }
+
+    function randomPrompt() {
+      const prompts = [
+        "Describe a planet made entirely of ice and neon clouds.",
+        "Tell me about alien civilizations observing Earth.",
+        "What lies beyond the edge of the observable universe?",
+        "Describe a future where humans terraform Saturn's moons.",
+        "Reveal an ancient prophecy written in the stars."
+      ];
+      const random = prompts[Math.floor(Math.random() * prompts.length)];
+      generateAI(random);
+    }
+
+    async function saveToIPFS() {
+      const text = output.innerText.trim();
+      if (!text) return alert("Nothing to save.");
+      const ipfs = window.IpfsHttpClient({ url: 'https://ipfs.infura.io:5001/api/v0' });
+      try {
+        const { path } = await ipfs.add(text);
+        alert("🛰️ Lore saved to IPFS: https://ipfs.io/ipfs/" + path);
+      } catch (err) {
+        alert("❌ Failed to upload to IPFS.");
+      }
+    }
+  </script>
+</body>
+</html>
